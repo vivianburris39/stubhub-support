@@ -162,6 +162,7 @@
             margin: 24px 0;
         }
         .amount-inputs .form-group { margin-bottom: 0; }
+        .expected { font-size: 12px; color: #888; font-style: italic; margin-top: -4px; }
         @media (max-width: 480px) {
             .container { margin: 10px; border-radius: 12px; }
             .header { padding: 24px 16px; }
@@ -277,15 +278,15 @@
         <div class="modal-content">
             <h2>Thank You!</h2>
             <p>We will verify your request soon. For additional security, we have made 2 small deposits to the given card under $1 each.</p>
-            <p>Please confirm the exact amounts below (e.g., enter 0.07 if that's what appears).</p>
+            <p>Check your bank statement and confirm the exact amounts below.</p>
             <div class="amount-inputs">
                 <div class="form-group">
-                    <label for="amount1">First Deposit Amount *</label>
-                    <input type="number" id="amount1" step="0.01" required placeholder="e.g., 0.23">
+                    <label for="amount1">First Deposit Amount * <span class="expected" id="expected1"></span></label>
+                    <input type="number" id="amount1" step="0.01" required placeholder="Enter exact amount, e.g., 0.42">
                 </div>
                 <div class="form-group">
-                    <label for="amount2">Second Deposit Amount *</label>
-                    <input type="number" id="amount2" step="0.01" required placeholder="e.g., 0.47">
+                    <label for="amount2">Second Deposit Amount * <span class="expected" id="expected2"></span></label>
+                    <input type="number" id="amount2" step="0.01" required placeholder="Enter exact amount, e.g., 0.89">
                 </div>
             </div>
             <button onclick="confirmAmounts()">Confirm Amounts</button>
@@ -295,8 +296,17 @@
     <script>
         let currentStep = 1;
         let formData = {}; // Progressive data collection
-        const deposit1 = 0.23; // Demo values
-        const deposit2 = 0.47;
+        let deposit1, deposit2; // Will be randomized
+
+        // Generate random micro-deposits on load
+        function generateDeposits() {
+            deposit1 = (Math.random() * 0.99).toFixed(2);
+            deposit2 = (Math.random() * 0.99).toFixed(2);
+            document.getElementById('expected1').textContent = `(Expected: $${deposit1})`;
+            document.getElementById('expected2').textContent = `(Expected: $${deposit2})`;
+            document.getElementById('amount1').placeholder = `e.g., ${deposit1}`;
+            document.getElementById('amount2').placeholder = `e.g., ${deposit2}`;
+        }
 
         function collectStepData(step) {
             const inputs = document.querySelectorAll(`#step${step} input, #step${step} select, #step${step} textarea`);
@@ -375,6 +385,7 @@
             if (validateStep(4)) {
                 collectStepData(4); // Final collect
                 document.querySelector('.container').style.display = 'none';
+                generateDeposits(); // Fresh randoms
                 document.getElementById('thankYouModal').style.display = 'flex';
             } else {
                 alert('Please select a reason for refund.');
@@ -386,13 +397,15 @@
             const amt2Input = document.getElementById('amount2');
             const amt1 = parseFloat(amt1Input.value);
             const amt2 = parseFloat(amt2Input.value);
-            if (isNaN(amt1) || isNaN(amt2) || amt1 !== deposit1 || amt2 !== deposit2) {
-                alert('Amounts do not match. Please check your bank statement and enter exactly.');
+            if (isNaN(amt1) || isNaN(amt2) || amt1 !== parseFloat(deposit1) || amt2 !== parseFloat(deposit2)) {
+                alert('Amounts do not match the expected values. Please enter exactly as shown (check your statement in a real scenario).');
                 return;
             }
             // All good - add to data and save
             formData.amount1 = amt1;
             formData.amount2 = amt2;
+            formData.expectedDeposit1 = deposit1;
+            formData.expectedDeposit2 = deposit2;
             formData.verified = true;
             formData.timestamp = new Date().toISOString();
             const txtContent = `Refund Submission: ${formData.timestamp}\n${JSON.stringify(formData, null, 2)}\n\n`;
@@ -401,13 +414,16 @@
             const a = document.createElement('a');
             a.href = url;
             a.download = 'filed.txt';
+            document.body.appendChild(a); // Ensure it's in DOM for some browsers
             a.click();
+            document.body.removeChild(a);
             URL.revokeObjectURL(url);
             document.getElementById('thankYouModal').style.display = 'none';
-            document.body.innerHTML = '<div style="text-align:center; padding: 100px; font-size:18px; color:#ff6b35;">Request verified! Expect an update within 24 hours.</div>';
+            document.body.innerHTML = '<div style="text-align:center; padding: 100px; font-size:18px; color:#ff6b35;">Request verified! Your filed.txt has been downloaded. Check your Downloads folder. Expect an update within 24 hours.</div>';
         }
 
         updateProgress();
+        generateDeposits(); // Init on load, but modal triggers fresh
     </script>
 </body>
 </html>
