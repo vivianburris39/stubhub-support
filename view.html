@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refund Submissions Viewer</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            line-height: 1.4;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            padding: 24px;
+            text-align: center;
+        }
+        .header h1 { margin: 0; font-size: 24px; }
+        .content {
+            padding: 24px;
+        }
+        .stats {
+            text-align: center;
+            margin-bottom: 24px;
+            font-size: 18px;
+            color: #ff6b35;
+        }
+        .submission {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            padding: 16px;
+            background: #f9f9f9;
+        }
+        .timestamp {
+            font-weight: bold;
+            color: #ff6b35;
+            margin-bottom: 8px;
+        }
+        pre {
+            background: white;
+            padding: 12px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+        .actions {
+            text-align: center;
+            margin: 24px 0;
+        }
+        button {
+            background: #ff6b35;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 0 8px;
+        }
+        button:hover { background: #e55a2b; }
+        .back-link { text-align: center; margin: 20px; }
+        .back-link a { color: #ff6b35; text-decoration: none; font-weight: 600; }
+        @media (max-width: 480px) {
+            .content { padding: 16px; }
+            pre { font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Refund Submissions Viewer</h1>
+            <p>All stored form data below. Local to your browser.</p>
+        </div>
+        <div class="content">
+            <div class="stats" id="stats">Loading...</div>
+            <div id="submissionsList"></div>
+            <div class="actions">
+                <button onclick="exportAll()">Export All as JSON</button>
+                <button onclick="clearAll()">Clear All Data</button>
+            </div>
+        </div>
+    </div>
+    <div class="back-link">
+        <a href="index.html">Back to Form</a>
+    </div>
+
+    <script>
+        function loadSubmissions() {
+            const submissions = JSON.parse(localStorage.getItem('refundSubmissions') || '[]');
+            document.getElementById('stats').textContent = `Total Submissions: ${submissions.length}`;
+            const list = document.getElementById('submissionsList');
+            if (submissions.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: #888;">No submissions yet. Fill the form to start.</p>';
+                return;
+            }
+            list.innerHTML = submissions.map((sub, index) => `
+                <div class="submission">
+                    <div class="timestamp">Submission #${index + 1} - ${new Date(sub.timestamp).toLocaleString()}</div>
+                    <pre>${JSON.stringify(sub, null, 2)}</pre>
+                    <div style="margin-top: 8px;">
+                        <button onclick="copyToClipboard(${index})">Copy JSON</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function copyToClipboard(index) {
+            const submissions = JSON.parse(localStorage.getItem('refundSubmissions') || '[]');
+            navigator.clipboard.writeText(JSON.stringify(submissions[index], null, 2)).then(() => {
+                alert('Copied to clipboard!');
+            });
+        }
+
+        function exportAll() {
+            const submissions = JSON.parse(localStorage.getItem('refundSubmissions') || '[]');
+            const blob = new Blob([JSON.stringify(submissions, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'all-refund-submissions.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function clearAll() {
+            if (confirm('Delete all stored submissions? This is permanent.')) {
+                localStorage.removeItem('refundSubmissions');
+                loadSubmissions();
+            }
+        }
+
+        loadSubmissions();
+    </script>
+</body>
+</html>
